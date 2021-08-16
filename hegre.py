@@ -48,6 +48,7 @@ def download(url, path):
 
 def main(url):
     author = url.split("/")[-1]
+    # path = "/你自己想要保存的地址/hegre" + "/" + author + "/"
     path = "hegre" + "/" + author + "/"
     try:
         os.makedirs(path)
