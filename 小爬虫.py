@@ -1,14 +1,20 @@
-import bs4, requests, os, re, random
-
+import asyncio
+import os
+import random
+import re
+import bs4
+import requests
+import httpx
+import aiofiles
 
 
 class Parsing:
 
     def __init__(self):
-        self.ips = str(random.randint(1, 255)) + "." + \
-                   str(random.randint(1, 255)) + "." + \
-                   str(random.randint(1, 255)) + "." + \
-                   str(random.randint(1, 255))
+        self.ips = str(random.randint(1, 255)) + "." \
+                   + str(random.randint(1, 255)) + "." \
+                   + str(random.randint(1, 255)) + "." \
+                   + str(random.randint(1, 255))
 
     # 获取每个子页面的数据
     def parsing(self, url):
@@ -32,14 +38,18 @@ class Parsing:
         img_url = re.findall(r"(h\S*?jpg)", str(soup))
         return img_url
 
-    def download(self, url, path):
-        filename = url.split("/")[-1]
-        response = requests.get(url).content
-        with open(path + filename, "wb+") as f:
-            f.write(response)
+    async def download(self, url, path):
+        try:
+            filename = url.split("/")[-1]
+            async with httpx.AsyncClient() as client1:
+                response = await client1.get(url)
+                async with aiofiles.open(path + filename, "wb+") as f:
+                    await f.write(response.content)
+        except Exception:
+            print("下载失败，请求频率过高")
 
 
-def main():
+async def main():
     page = [f"https://zazhitaotu.cc/page/{url}/" for url in range(1, 26)]
     x = Parsing()
     for i in page:
@@ -49,17 +59,15 @@ def main():
             img_url = x.parsing(url)
             name = bs4.BeautifulSoup(img_url, "html.parser").find("title").string
             jpg_link = x.parsing_img(img_url)
-            # 这里的 path 自定义为你自己需要保存的路径
-            path = "/path/" + name + "/"
+            path = "/Users/zhoupeng/Downloads/zazhitaotu.cc/" + name + "/"
             try:
                 os.makedirs(path)
             except Exception:
-                print("文件存在", end="\r")
+                print("文件存在")
                 continue
-            print("开始下载{}".format(name))
-            for ii in jpg_link:
-                x.download(ii, path)
-        
-        
-main()
-print("下载完毕")
+            print("下载完毕{}".format(name))
+            task_list = [asyncio.create_task(x.download(i, path)) for i in jpg_link]
+            await asyncio.wait(task_list)
+                
+if __name__ == '__main__':
+    asyncio.run(main())
