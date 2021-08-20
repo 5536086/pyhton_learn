@@ -60,7 +60,7 @@ async def main():
             img_url = x.parsing(url)
             name = bs4.BeautifulSoup(img_url, "html.parser").find("title").string
             jpg_link = x.parsing_img(img_url)
-            path = "/Users/zhoupeng/Downloads/zazhitaotu.cc/" + name + "/"
+            path = "./zazhitaotu.cc/" + name + "/"
             try:
                 os.makedirs(path)
             except Exception:
