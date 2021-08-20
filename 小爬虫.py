@@ -70,6 +70,10 @@ async def main():
             task_list = [asyncio.create_task(x.download(i, path)) for i in jpg_link]
             time.sleep(1)
             await asyncio.wait(task_list)
+             
                 
 if __name__ == '__main__':
+    t1 = time.time()
     asyncio.run(main())
+    print("全部下载完毕")
+    print(time.time() - t1)
