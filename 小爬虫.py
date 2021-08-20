@@ -6,6 +6,7 @@ import bs4
 import requests
 import httpx
 import aiofiles
+import time
 
 
 class Parsing:
@@ -67,6 +68,7 @@ async def main():
                 continue
             print("下载完毕{}".format(name))
             task_list = [asyncio.create_task(x.download(i, path)) for i in jpg_link]
+            time.sleep(1)
             await asyncio.wait(task_list)
                 
 if __name__ == '__main__':
